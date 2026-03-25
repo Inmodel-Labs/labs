@@ -1,11 +1,18 @@
-```python
 import requests
 
-    """
-    Filter a list of issues and return only those with state == 'open'.
-    
-    Returns:
-        A filtered list of issue dicts
-    """
-    # TODO: Filter the issues list and return only open ones
-    pass
+def fetch_issues(owner: str, repo: str) -> list:
+    """Fetch open issues from a GitHub repository."""
+    url = f"https://api.github.com/repos/{owner}/{repo}/issues?state=open"
+    # Note: requests is imported at module level for simplicity in labs
+    try:
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            return response.json()
+    except Exception:
+        pass
+    return []
+
+
+def filter_open(issues: list) -> list:
+    """Filter a list of issues to only include those where state is 'open'."""
+    return [i for i in issues if i.get("state") == "open"]
