@@ -33,7 +33,7 @@ jobs:
         run: |
           # Run each lab in its own directory to avoid module name clashes
           set +e  # don't stop on test failures
-          cd hackathon-2026/labs
+          cd hackathon-2026/labs || true
           for lab in lab-01-api-fetcher lab-02-llm-json lab-03-toon-convert lab-04-vehicle-detect lab-05-rag-qa; do
             echo "--- Testing $lab ---"
             (cd $lab && python -m pytest tests/ --tb=short \
@@ -48,7 +48,7 @@ jobs:
 
       - name: 📊 Compute & Post Score
         run: |
-          cd hackathon-2026/labs
+          cd hackathon-2026/labs || true
           python grader/score.py
 
       - name: 📤 Upload Test Results
@@ -56,5 +56,5 @@ jobs:
         if: always()
         with:
           name: test-results-${{ github.sha }}
-          path: hackathon-2026/labs/test_results.json
+          path: test_results.json
           retention-days: 7
