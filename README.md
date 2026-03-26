@@ -56,6 +56,7 @@ Before diving into the main challenge, complete the **Auto-Graded Labs** in the 
   ```bash
   cd hackathon-2026/labs
   pytest lab-01-api-fetcher/tests/  # Example for Lab 01
+  pytest lab-06-healthcare-agents/tests/  # Example for Lab 06
   ```
 - **Automated Grading**: Every time you push to GitHub, our autograder will evaluate your progress. Check the **Actions** tab in your repo for your score.
 
@@ -63,13 +64,24 @@ Before diving into the main challenge, complete the **Auto-Graded Labs** in the 
 
 ## 🏆 Phase 3: The Challenge (Tracks)
 
-Choose one of the following tracks to build your final project. Problem statements are located in `hackathon-resources/tracks/`.
+Choose one of the following tracks to build your final project. Problem statements are located in `hackathon-2026/hackathon-resources/tracks/`.
 
-1.  **Dataset Quality** — Optimizing data pipelines for high-fidelity LLM training.
-2.  **Hallucination** — Building guardrails to detect and prevent LLM misinformation.
-3.  **MCP Workflow** — Creating agentic workflows using the Model Context Protocol.
-4.  **Toon Converter** — Developing advanced image-to-cartoon pipelines.
-5.  **Traffic AI** — Real-time vehicle detection and analysis.
+### 🚩 Flagship Track
+*   **[MCP-Based AI Work Assistant](hackathon-2026/hackathon-resources/tracks/mcp-workflow.md)** — Build a context-aware AI assistant using Model Context Protocol.
+
+### ⚡ Advanced Tracks
+*   **[Healthcare Agentic AI](hackathon-2026/hackathon-resources/tracks/healthcare.md)** — Real-time patient monitoring and anomaly detection.
+*   **[Hallucination Detection](hackathon-2026/hackathon-resources/tracks/hallucination.md)** — Scoring and flagging hallucinated LLM content.
+*   **[Dataset Quality Analyzer](hackathon-2026/hackathon-resources/tracks/dataset-quality.md)** — Evaluating datasets for bias and noise with NLP support.
+*   **[Technology (Agentic Coding)](hackathon-2026/hackathon-resources/tracks/technology-coding.md)** — Autonomous issue detection and code improvement.
+*   **[Event Recommender](hackathon-2026/hackathon-resources/tracks/event-recommender.md)** — Personalized engine with collaborative filtering and reasoning.
+*   **[Traffic AI](hackathon-2026/hackathon-resources/tracks/traffic-ai.md)** — Real-time vehicle detection and analysis.
+
+### 🌱 Foundation Tracks
+*   **[Churn Predictor](hackathon-2026/hackathon-resources/tracks/churn-predictor.md)** — Customer churn prediction with explainable AI.
+*   **[Cybersecurity](hackathon-2026/hackathon-resources/tracks/cybersecurity.md)** — Autonomous threat detection and response.
+*   **[Form Filler](hackathon-2026/hackathon-resources/tracks/form-filler.md)** — Extraction and auto-filling from documents.
+*   **[TOON Converter](hackathon-2026/hackathon-resources/tracks/toon.md)** — Tokenized graph structures for AI reasoning.
 
 ---
 
