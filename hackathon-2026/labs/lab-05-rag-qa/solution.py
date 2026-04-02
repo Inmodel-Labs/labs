@@ -9,10 +9,15 @@ def retrieve(chunks: list[str], question: str) -> str:
     Returns:
         The single chunk string with the highest word overlap score.
     """
-    # TODO: Tokenize question (split on spaces, lowercase)
-    # TODO: For each chunk, count how many question words appear in it
-    # TODO: Return the chunk with the highest count
-    pass
+    # Tokenize question: split on spaces, lowercase
+    question_words = set(question.lower().split())
+
+    # For each chunk, count how many question words appear in it
+    best_chunk = max(chunks, key=lambda chunk: len(
+        question_words & set(chunk.lower().split())
+    ))
+
+    return best_chunk
 
 
 def answer(chunks: list[str], question: str) -> dict:
@@ -27,6 +32,11 @@ def answer(chunks: list[str], question: str) -> dict:
         A dict with keys: 'context' (str) and 'answer' (str).
         'answer' must be a non-empty string.
     """
-    # TODO: Call retrieve() to get the best chunk
-    # TODO: Return {"context": <chunk>, "answer": <any non-empty string>}
-    pass
+    # Call retrieve() to get the best chunk
+    context = retrieve(chunks, question)
+
+    # Return context and a non-empty answer string
+    return {
+        "context": context,
+        "answer": context
+    }
