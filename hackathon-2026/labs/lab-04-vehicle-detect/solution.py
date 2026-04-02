@@ -1,6 +1,3 @@
-from typing import Optional
-
-
 def count_by_class(detections):
     """
     Count detections grouped by class name.
@@ -11,8 +8,11 @@ def count_by_class(detections):
     Returns:
         A dict like {"car": 3, "truck": 1}
     """
-    # TODO: Iterate over detections, count each class_name
-    pass
+    counts = {}
+    for detection in detections:
+        class_name = detection["class_name"]
+        counts[class_name] = counts.get(class_name, 0) + 1
+    return counts
 
 
 def filter_by_confidence(detections, threshold):
@@ -26,8 +26,7 @@ def filter_by_confidence(detections, threshold):
     Returns:
         Filtered list of detection dicts.
     """
-    # TODO: Filter and return
-    pass
+    return [d for d in detections if d["confidence"] > threshold]
 
 
 def get_top_detection(detections):
@@ -40,6 +39,7 @@ def get_top_detection(detections):
     Returns:
         Single dict with highest confidence, or None if list is empty.
     """
-    # TODO: Return the max-confidence detection, or None if empty
-    pass
+    if not detections:
+        return None
+    return max(detections, key=lambda d: d["confidence"])
 
