@@ -1,38 +1,53 @@
-"""
-Lab 04: Vehicle Detection - Solution
-"""
-
 from typing import Optional
-from collections import Counter
 
 
-def count_by_class(detections: list[dict]) -> dict:
+def count_by_class(detections):
     """
     Count detections grouped by class name.
+
+    Args:
+        detections: List of detection dicts with 'class_name' key.
 
     Returns:
         A dict like {"car": 3, "truck": 1}
     """
-    return dict(Counter(d["class_name"] for d in detections))
+    # TODO: Iterate over detections, count each class_name
+    counts = {}
+    for det in detections:
+        cls = det.get("class_name")
+        if cls:
+            counts[cls] = counts.get(cls, 0) + 1
+    return counts
 
 
-def filter_by_confidence(detections: list[dict], threshold: float) -> list[dict]:
+
+def filter_by_confidence(detections, threshold):
     """
-    Return only detections where confidence > threshold (exclusive),
-    sorted by confidence descending.
+    Return only detections where confidence > threshold.
+
+    Args:
+        detections: List of detection dicts with 'confidence' key.
+        threshold:  Minimum confidence value (e.g., 0.75).
+
+    Returns:
+        Filtered list of detection dicts.
     """
-    return sorted(
-        [d for d in detections if d["confidence"] > threshold],
-        key=lambda d: d["confidence"],
-        reverse=True
-    )
+    # TODO: Filter and return
+    return [det for det in detections if det.get("confidence", 0) > threshold]
 
 
-def get_top_detection(detections: list[dict]) -> Optional[dict]:
+def get_top_detection(detections):
     """
     Return the detection with the highest confidence score.
-    Returns None if list is empty.
+
+    Args:
+        detections: List of detection dicts.
+
+    Returns:
+        Single dict with highest confidence, or None if list is empty.
     """
+    # TODO: Return the max-confidence detection, or None if empty
     if not detections:
         return None
-    return max(detections, key=lambda d: d["confidence"])
+    # Use max with key argument to find the dict with highest confidence
+    return max(detections, key=lambda det: det.get("confidence", 0))
