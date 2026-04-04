@@ -1,32 +1,34 @@
-def retrieve(chunks: list[str], question: str) -> str:
+import re
+from collections import Counter
+
+# Common stopwords to ignore during matching
+STOPWORDS = {
+    "a", "an", "the", "is", "are", "was", "were", "what", "how",
+    "when", "where", "who", "which", "does", "do", "did", "for",
+    "in", "on", "at", "to", "of", "and", "or", "it", "this", "that"
+}
+
+def tokenize(text: str) -> list[str]:
+    """Lowercase, remove punctuation, split into meaningful words."""
+    return [
+        word for word in re.findall(r'\b[a-z]+\b', text.lower())
+        if word not in STOPWORDS
+    ]
+
+def score_chunk(chunk: str, question_tokens: list[str]) -> float:
     """
-    Retrieve the most relevant chunk using simple word overlap.
-
-    Args:
-        chunks:   List of text strings (the knowledge base).
-        question: The user's question.
-
-    Returns:
-        The single chunk string with the highest word overlap score.
+    Score a chunk based on weighted keyword overlap.
+    - Rewards chunks that match more unique question keywords.
+    - Uses term frequency in chunk to boost confident matches.
     """
-    # TODO: Tokenize question (split on spaces, lowercase)
-    # TODO: For each chunk, count how many question words appear in it
-    # TODO: Return the chunk with the highest count
-    pass
+    if not question_tokens:
+        return 0.0
 
+    chunk_tokens = tokenize(chunk)
+    chunk_freq = Counter(chunk_tokens)
+    question_set = set(question_tokens)
 
-def answer(chunks: list[str], question: str) -> dict:
-    """
-    Retrieve the best context and build a simple answer.
-
-    Args:
-        chunks:   The knowledge base.
-        question: The user's question.
-
-    Returns:
-        A dict with keys: 'context' (str) and 'answer' (str).
-        'answer' must be a non-empty string.
-    """
-    # TODO: Call retrieve() to get the best chunk
-    # TODO: Return {"context": <chunk>, "answer": <any non-empty string>}
-    pass
+    score = 0.0
+    for word in question_set:
+        if word in chunk_freq:
+            # Boost s
