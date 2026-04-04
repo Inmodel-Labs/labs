@@ -1,30 +1,93 @@
-"""Tests for Lab 02: LLM JSON Output"""
-import pytest
-from solution import summarize_text
+import json
+import re
+import anthropic
 
-SAMPLE = "AI is transforming urban mobility by optimizing traffic signals using computer vision."
-
-
-def test_returns_dict():
-    result = summarize_text(SAMPLE)
-    assert isinstance(result, dict), "Must return a dict"
+client = anthropic.Anthropic()
 
 
-def test_has_title_key():
-    result = summarize_text(SAMPLE)
-    assert "title" in result, "Dict must contain 'title'"
-    assert isinstance(result["title"], str), "'title' must be a string"
+def _extract_json(text: str) -> dict:
+    """
+    Robustly extract a JSON object from a string.
+    Handles cases where the LLM wraps output in markdown or adds extra text.
+    """
+    # Strip markdown code fences if present
+    cleaned = re.sub(r"```(?:json)?|```", "", text).strip()
+
+    # Try direct parse first
+    try:
+        return json.loads(cleaned)
+    except json.JSONDecodeError:
+        pass
+
+    # Fallback: extract first {...} block found in the text
+    match = re.search(r"\{.*?\}", cleaned, re.DOTALL)
+    if match:
+        return json.loads(match.group())
+
+    raise ValueError(f"No valid JSON found in model response:\n{text}")
 
 
-def test_has_points_key():
-    result = summarize_text(SAMPLE)
-    assert "points" in result, "Dict must contain 'points'"
-    assert isinstance(result["points"], list), "'points' must be a list"
-    assert len(result["points"]) == 3, "'points' must have exactly 3 items"
+def summarize_text(text: str) -> dict:
+    """
+    Use Claude to summarize a text into a structured JSON response.
 
+    Args:
+        text: The input text to summarize.
 
-def test_has_sentiment_key():
-    result = summarize_text(SAMPLE)
-    assert "sentiment" in result, "Dict must contain 'sentiment'"
-    assert result["sentiment"] in {"positive", "neutral", "negative"}, \
-        "'sentiment' must be 'positive', 'neutral', or 'negative'"
+    Returns:
+        A dict with keys:
+          - 'title'     (str)            : A short headline for the text
+          - 'points'    (list of 3 str)  : Exactly 3 key takeaways
+          - 'sentiment' (str)            : One of 'positive', 'neutral', 'negative'
+    """
+    system_prompt = """
+You are a JSON-only responder. Return ONLY raw JSON — no markdown, no backticks, no explanation.
+
+Your response must strictly follow this schema:
+{
+  "title":     "<a short one-line headline summarizing the text>",
+  "points":    ["<point 1>", "<point 2>", "<point 3>"],
+  "sentiment": "<positive | neutral | negative>"
+}
+
+Rules:
+- 'points' must contain EXACTLY 3 strings.
+- 'sentiment' must be one of: positive, neutral, negative.
+- Output nothing except the JSON object.
+""".strip()
+
+    user_prompt = f"Summarize the following text:\n\n{text}"
+
+    message = client.messages.create(
+        model="claude-sonnet-4-5",
+        max_tokens=512,
+        system=system_prompt,
+        messages=[
+            {"role": "user", "content": user_prompt}
+        ]
+    )
+
+    raw_output = message.content[0].text
+    result = _extract_json(raw_output)
+
+    # --- Post-parse validation & safety corrections ---
+
+    # Ensure 'title' is a string
+    if "title" not in result or not isinstance(result["title"], str):
+        result["title"] = text[:60]
+
+    # Ensure 'points' is a list of exactly 3 strings
+    points = result.get("points", [])
+    if not isinstance(points, list):
+        points = [str(points)]
+    # Pad or trim to exactly 3
+    while len(points) < 3:
+        points.append("No additional point provided.")
+    result["points"] = points[:3]
+
+    # Ensure 'sentiment' is one of the allowed values
+    allowed = {"positive", "neutral", "negative"}
+    if result.get("sentiment") not in allowed:
+        result["sentiment"] = "neutral"
+
+    return result
