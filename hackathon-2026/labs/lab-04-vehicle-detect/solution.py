@@ -12,7 +12,13 @@ def count_by_class(detections):
         A dict like {"car": 3, "truck": 1}
     """
     # TODO: Iterate over detections, count each class_name
-    pass
+    counts = {}
+    for det in detections:
+        cls = det.get("class_name")
+        if cls:
+            counts[cls] = counts.get(cls, 0) + 1
+    return counts
+
 
 
 def filter_by_confidence(detections, threshold):
@@ -27,7 +33,7 @@ def filter_by_confidence(detections, threshold):
         Filtered list of detection dicts.
     """
     # TODO: Filter and return
-    pass
+    return [det for det in detections if det.get("confidence", 0) > threshold]
 
 
 def get_top_detection(detections):
@@ -41,5 +47,7 @@ def get_top_detection(detections):
         Single dict with highest confidence, or None if list is empty.
     """
     # TODO: Return the max-confidence detection, or None if empty
-    pass
-
+    if not detections:
+        return None
+    # Use max with key argument to find the dict with highest confidence
+    return max(detections, key=lambda det: det.get("confidence", 0))
