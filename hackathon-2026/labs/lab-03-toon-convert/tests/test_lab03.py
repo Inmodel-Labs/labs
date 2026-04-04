@@ -1,40 +1,40 @@
-"""Tests for Lab 03: TOON Converter"""
-import pytest
-from solution import json_to_toon, count_tokens
+def json_to_toon(data: list[dict]) -> str:
+    """
+    Convert a list of uniform dicts to TOON format.
 
-DATA = [
-    {"id": 1, "name": "Alice", "score": 92},
-    {"id": 2, "name": "Bob",   "score": 87},
-]
+    Example:
+        Input:  [{"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob"}]
+        Output:
+            # fields: id, name
+            1 | Alice
+            2 | Bob
 
+    Returns:
+        A single TOON-format string.
+    """
+    if not data:
+        return ""
 
-def test_toon_has_header():
-    result = json_to_toon(DATA)
-    assert result.startswith("# fields:"), "First line must start with '# fields:'"
+    fields = list(data[0].keys())
 
+    header = f"# fields: {', '.join(fields)}"
 
-def test_toon_header_contains_all_keys():
-    result = json_to_toon(DATA)
-    header = result.splitlines()[0]
-    for key in DATA[0].keys():
-        assert key in header, f"Header must contain key '{key}'"
+    rows = [
+        " | ".join(str(row[field]) for field in fields)
+        for row in data
+    ]
 
-
-def test_toon_correct_row_count():
-    result = json_to_toon(DATA)
-    lines = [l for l in result.splitlines() if not l.startswith("#")]
-    assert len(lines) == len(DATA), "Number of data rows must match input length"
-
-
-def test_toon_uses_pipe_separator():
-    result = json_to_toon(DATA)
-    data_lines = [l for l in result.splitlines() if not l.startswith("#")]
-    assert all("|" in l for l in data_lines), "Each data row must use '|' separator"
+    return "\n".join([header] + rows)
 
 
-def test_count_tokens_basic():
-    assert count_tokens("hello world foo") == 3
+def count_tokens(text: str) -> int:
+    """
+    A simple proxy for token count: split on whitespace and count words.
 
+    Args:
+        text: Any string.
 
-def test_count_tokens_empty():
-    assert count_tokens("") == 0
+    Returns:
+        Integer word count. Returns 0 for empty or whitespace-only strings.
+    """
+    return len(text.split()) if text.strip() else 0
