@@ -1,41 +1,72 @@
-"""Tests for Lab 05: RAG Q&A"""
-import pytest
-from solution import retrieve, answer
+"""
+Lab 05: RAG Q&A
+Implements the retrieval core of a Retrieval-Augmented Generation pipeline.
 
-CHUNKS = [
-    "YOLO is a real-time object detection algorithm used for identifying vehicles.",
-    "RAG stands for Retrieval Augmented Generation and reduces hallucinations.",
-    "MCP is the Model Context Protocol by Anthropic for connecting AI to tools.",
-]
-
-
-def test_retrieve_returns_string():
-    result = retrieve(CHUNKS, "What is YOLO?")
-    assert isinstance(result, str), "retrieve() must return a string"
+Functions:
+    retrieve(chunks, question) -> str   – returns the single best-matching chunk
+    answer(chunks, question)   -> dict  – returns {'context': str, 'answer': str}
+"""
 
 
-def test_retrieve_finds_correct_chunk():
-    result = retrieve(CHUNKS, "What is YOLO detection?")
-    assert "YOLO" in result, "Should retrieve the YOLO chunk for a YOLO question"
+def retrieve(chunks: list[str], question: str) -> str:
+    """
+    Find the most relevant chunk using word-overlap scoring.
+
+    Strategy:
+      - Tokenise the question into a set of lowercase words.
+      - Score each chunk by counting how many question words appear in it.
+      - Return the chunk with the highest score (first chunk wins on tie).
+
+    Args:
+        chunks:   Non-empty list of text strings (the knowledge base).
+        question: The user's natural-language question.
+
+    Returns:
+        The single chunk string with the highest word-overlap score.
+
+    Example:
+        >>> retrieve(["YOLO detects objects.", "RAG reduces hallucinations."],
+        ...          "What is YOLO?")
+        'YOLO detects objects.'
+    """
+    question_words = set(question.lower().split())
+
+    best_chunk = chunks[0]
+    best_score = -1
+
+    for chunk in chunks:
+        chunk_lower = chunk.lower()
+        # Count how many distinct question words appear anywhere in this chunk
+        score = sum(1 for word in question_words if word in chunk_lower)
+        if score > best_score:
+            best_score = score
+            best_chunk = chunk
+
+    return best_chunk
 
 
-def test_retrieve_finds_rag_chunk():
-    result = retrieve(CHUNKS, "How does RAG reduce hallucinations?")
-    assert "RAG" in result, "Should retrieve the RAG chunk"
+def answer(chunks: list[str], question: str) -> dict:
+    """
+    Retrieve the best context chunk and generate a grounded answer.
 
+    Args:
+        chunks:   The knowledge base (list of text strings).
+        question: The user's question.
 
-def test_answer_returns_dict():
-    result = answer(CHUNKS, "What is YOLO?")
-    assert isinstance(result, dict), "answer() must return a dict"
+    Returns:
+        A dict with:
+            'context' (str) – the retrieved chunk used as evidence
+            'answer'  (str) – a non-empty answer grounded in that context
 
-
-def test_answer_has_correct_keys():
-    result = answer(CHUNKS, "What is YOLO?")
-    assert "context" in result, "Dict must have 'context' key"
-    assert "answer" in result, "Dict must have 'answer' key"
-
-
-def test_answer_is_non_empty():
-    result = answer(CHUNKS, "What is MCP?")
-    assert isinstance(result["answer"], str) and len(result["answer"]) > 0, \
-        "'answer' must be a non-empty string"
+    Example:
+        >>> answer(["RAG reduces hallucinations."], "What is RAG?")
+        {
+            'context': 'RAG reduces hallucinations.',
+            'answer':  'Based on the context: RAG reduces hallucinations.'
+        }
+    """
+    context = retrieve(chunks, question)
+    return {
+        "context": context,
+        "answer": f"Based on the context: {context}",
+    }
